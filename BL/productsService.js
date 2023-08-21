@@ -4,11 +4,10 @@ const productsDal = require('../DAL/productsDal.js');
 // Add random quantity to data
 const addRandomQuantity = async () => {
     const data = await productsDal.getData()
-    const dataWhitRandomQuantity = await data.forEach(product => {
-        product["stock"] = Math.floor((Math.random() * (100 - 1) + 1))
+    data.forEach(product => {
+        product["quantity"] = Math.floor((Math.random() * (100 - 1) + 1))
     });
-    console.log(dataWhitRandomQuantity);
-
+    return data;
 };
 
 // Get all products
