@@ -1,14 +1,19 @@
+const { response } = require('express');
 const productsService = require('../BL/productsService.js');
 
 // Get data
 const getData = async () => {
-    return await productsService.addRandomQuantity()
+    return await productsService.addRandomQuantity();
 };
 
 // Get all products
 const getAllProducts = async (req, res) => {
-    const products = await productsService.getProducts();
-    await res.send(products);
+    try {
+        const products = await productsService.getProducts();
+        res.status(200).json(products);
+    } catch (err) {
+        res.status(500).json(err);
+    };
 };
 
 // Get product by id
@@ -22,7 +27,7 @@ const getProductById = async (req, res) => {
 
 // Add product
 const addProduct = async (req, res) => {
-    if (productsService.checkId(req.body.id)) {
+    if (! await productsService.checkId(req.body.id)) {
         res.send("There is already a product with such a id");
     };
     const newProduct = req.body;
@@ -32,7 +37,7 @@ const addProduct = async (req, res) => {
 
 // Update prodact func
 const update = async (req, res) => {
-    if (await !productsService.checkId(req.body.id)) {
+    if (! await productsService.checkId(req.body.id)) {
         res.send("We did not find a product with such a id");
     };
     try {
@@ -45,37 +50,40 @@ const update = async (req, res) => {
 };
 
 const deleteProduct = async (req, res) => {
-    if (!productsService.checkId(req.params.id)) {
-        console.log(await productsService.checkId(req.params.id));
-        res.send("We did not find a product with such a id");
-    };
     try {
+        if (! await productsService.checkId(req.params.id)) {
+            throw "We did not find a product with such a id";
+
+        };
         await productsService.deleteProduct(req.params.id);
         res.send("The product has been successfully deleted");
     } catch (err) {
-        res.send(new Error(err));
+        res.send(err);
     }
 
 };
 
 // 
 const addStock = async (req, res) => {
-    if (!productsService.checkId(req.params.id)) {
-        console.log(await productsService.checkId(req.params.id));
-        res.send("We did not find a product with such a id");
+    if (! await productsService.checkId(req.params.id)) {
+        throw "We did not find a product with such a id";
     };
     await productsService.addStock(req.params.id);
-    res.send("The product quantity has been successfully added");
+    const products = await productsService.getProducts();
+    const thisProduct = await products.find(profuts => profuts.id == req.params.id);
+    res.status(200).json(thisProduct.quantity);
 };
 
 // download Stock
 const downloadStock = async (req, res) => {
-    if (!productsService.checkId(req.params.id)) {
-        console.log(await productsService.checkId(req.params.id));
-        res.send("We did not find a product with such a id");
+    if (! await productsService.checkId(req.params.id)) {
+        throw "We did not find a product with such a id";
     };
     await productsService.downloadStock(req.params.id);
-    res.send("The product quantity has been downloaded successfully");
+    const products = await productsService.getProducts();
+    const thisProduct = await products.find(profuts => profuts.id == req.params.id);
+    res.status(200).json(thisProduct.quantity);
+
 };
 
 

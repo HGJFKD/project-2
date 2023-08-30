@@ -1,3 +1,4 @@
+
 const products = require('../products.json');
 const jsonfile = require('jsonfile');
 const axios = require('axios');
@@ -11,20 +12,20 @@ const getData = () => {
 
 // Get all products
 const read = (req, res) => {
-    return jsonfile.readFile('./products.json');
+    return jsonfile.readFile('./productsData.json');
 };
 
 
 // Add product
-const writeToData = (data, ...product) => {
-    read()
-        .then(products => jsonfile.writeFile('./products.json', [...data, product], (err) => {
+const writeToData = async (data, ...product) => {
+    return await read()
+        .then(products => jsonfile.writeFile('./productsData.json', data, (err) => {
             if (err) throw err;
         }));
 };
 
 // Update product
-const update = (body, id) => {
+const update = async (body, id) => {
     read().then(products => {
         products.forEach((product, i) => {
             if (product.id == id) {

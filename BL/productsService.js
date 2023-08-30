@@ -1,9 +1,9 @@
 const { response } = require('express');
-const productsDal = require('../DAL/productsDal.js');
+const productsDal = require('../DL/productsDal.js');
 
 // Add random quantity to data
 const addRandomQuantity = async () => {
-    const data = await productsDal.getData()
+    const data = await productsDal.read()
     data.forEach(product => {
         product["quantity"] = Math.floor((Math.random() * (100 - 1) + 1))
     });
@@ -12,14 +12,15 @@ const addRandomQuantity = async () => {
 
 // Get all products
 const getProducts = async (req, res) => {
-    productsDal.findPrduct()
-    return await productsDal.read();
+    return await productsDal.read()
+        .then(data => data)
+        .catch(error => { throw error })
 };
 
 // Check id func
 const checkId = async (id) => {
     const data = await getProducts();
-    if (await data.some(product => product.id == id)) return true;
+    if (data.some(product => product.id == id)) return true;
     return false
 };
 
@@ -42,7 +43,7 @@ const update = async (body, id) => {
 
 // Delete product
 const deleteProduct = async (id) => {
-    const data = await getProducts();
+    const data = await getProducts()
     data.splice(data.indexOf(data.find(product => product.id == id)), 1);
     productsDal.writeToData(data);
 };
@@ -50,14 +51,14 @@ const deleteProduct = async (id) => {
 // add stock
 const addStock = async (id) => {
     const findPrduct = await productsDal.findPrduct(id);
-    findPrduct["stock"] += 1;
+    findPrduct["quantity"] += 1;
     await productsDal.update(findPrduct, id)
 }
 
 // download Stock
 const downloadStock = async (id) => {
     const findPrduct = await productsDal.findPrduct(id);
-    findPrduct["stock"] -= 1;
+    findPrduct["quantity"] -= 1;
     await productsDal.update(findPrduct, id)
 }
 
